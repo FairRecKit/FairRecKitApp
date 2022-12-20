@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/TheMinefreak23/fair-rec-kit-app?label=Release)
 
-The fairreckit application is a web-based tool intended to aid in the performing and analysing of recommender system computations. It utilises a custom library called [fairreckitlib](https://github.com/FairRecKit/FairRecKitLib) to perform its computations.
+The FairRecKit App is a web-based tool intended to aid in the performing and analysing of recommender system computations. It utilises a custom library called [FairRecKitLib](https://github.com/FairRecKit/FairRecKitLib) to perform its computations.
 
-This program has been developed by students from the bachelor Computer Science program at Utrecht University within the Software Project course, commissioned by Christine Bauer.
+This software has been developed by students from the bachelor Computer Science program at Utrecht University within the Software Project course, commissioned by Christine Bauer.
 
 Lennard Chung,          Aleksej Cornelissen,
 Isabelle van Driessel,  Diede van der Hoorn,
@@ -18,6 +18,9 @@ Casper Thijsen,         Robert Verbeeten,
 Vos Wesseling,          Fern Wieland    
 
 © Copyright Utrecht University (Department of Information and Computing Sciences)
+
+If you use FairRecKit in published research, please cite:
+> Christine Bauer, Lennard Chung, Aleksej Cornelissen, Isabelle van Dries-sel, Diede van der Hoorn, Yme de Jong, Lan Le, Sanaz Najiyan Tabriz, Ro-derick Spaans, Casper Thijsen, Robert Verbeeten, Vos Wesseling, & Fern Wieland (2023). FairRecKit: A Web-based analysis software for recommender evaluations. Proceedings of the 8th ACM SIGIR Conference on Human Information Interaction and Retrieval (CHIIR 2023), Austin, TX, USA, 19–23 March. DOI: [10.1145/3576840.3578274](https://doi.org/10.1145/3576840.3578274)
 
 ## Running the client & server
 
