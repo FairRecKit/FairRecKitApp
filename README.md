@@ -8,7 +8,7 @@
 
 The FairRecKit App is a web-based tool intended to aid in the performing and analysing of recommender system computations. It utilises a custom library called [FairRecKitLib](https://github.com/FairRecKit/FairRecKitLib) to perform its computations.
 
-This software has been developed by students from the bachelor Computer Science program at Utrecht University within the Software Project course, commissioned by Christine Bauer.
+This software has been developed by students within the Software Project course of the bachelor program Computer Science at Utrecht University, commissioned by Christine Bauer.
 
 Lennard Chung,          Aleksej Cornelissen,
 Isabelle van Driessel,  Diede van der Hoorn,
