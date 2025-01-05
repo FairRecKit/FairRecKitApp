@@ -10,6 +10,7 @@ The FairRecKitApp is a web-based tool intended to aid in the performing and anal
 
 This software has been developed by students within the Software Project course of the bachelor program Computer Science at Utrecht University, commissioned by Christine Bauer.
 
+Development team: 
 Lennard Chung, 
 Aleksej Cornelissen,
 Isabelle van Driessel, 
