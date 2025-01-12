@@ -32,13 +32,11 @@ def test_model_api_dict():
     assert not model_to_api
 
 
-
 def test_format_categorised():
     """Test data to form reformatting fpr categorised options."""
     # Empty case
     formatted = format_categorised({})
     assert not formatted
-
 
 
 def test_reformat_all():
@@ -59,7 +57,6 @@ def test_reformat_options():
     """Test reformatting of options."""
     # Empty case
     assert reformat_options([]) == []
-
 
 
 def test_form_to_data():

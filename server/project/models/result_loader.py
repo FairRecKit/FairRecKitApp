@@ -29,7 +29,7 @@ from .constants import RESULTS_DIR
 from .result_storage import load_results_overview, load_json
 
 ADDITIONAL_COLUMNS = {
-    'user-track-count': {'spotify': ['audio_snippet']}
+    'user-track-count':{'spotify':['audio_snippet']}
 }
 
 
@@ -41,8 +41,7 @@ def result_by_id(result_id, result_storage):
     result_store(ResultStorage): the result storage with the current result
     """
     results_overview = load_results_overview()
-    relative_path = RESULTS_DIR + str(result_id) + "_" + \
-                    id_to_name(results_overview, result_id)
+    relative_path = RESULTS_DIR + str(result_id) + "_" + id_to_name(results_overview, result_id)
 
     data = results_overview['all_results'][id_to_index(
         results_overview, result_id)]
@@ -90,8 +89,7 @@ def get_overview(evaluation_id, runid):
 
     name = id_to_name(results_overview, evaluation_id)
 
-    relative_path = RESULTS_DIR + str(evaluation_id) + \
-                    "_" + name + "/" + "run_" + str(runid)
+    relative_path = RESULTS_DIR + str(evaluation_id) + "_" + name + "/" + "run_" + str(runid)
     overview_path = relative_path + "/overview.json"
     run_overview = load_json(overview_path)
     return run_overview['overview']
@@ -176,10 +174,11 @@ def get_chunk(start_rows, chunk_size, df_sorted):
 
     # determine if at the end of the dataset
     rows_number = len(df_sorted)
+
     end_rows = min(end_rows, rows_number)
 
     # return part of table that should be shown
-    return df_sorted[start_rows:end_rows]
+    return df_sorted.iloc[start_rows:end_rows]
 
 
 def rename_headers(dataset_name, matrix_name, df_subset):
@@ -195,7 +194,7 @@ def rename_headers(dataset_name, matrix_name, df_subset):
     if dataset is not None and not dataset.get_matrix_config(matrix_name) is None:
         item = dataset.get_matrix_config(matrix_name).item.key
         user = dataset.get_matrix_config(matrix_name).user.key
-        df_subset.rename(columns={'user': user, 'item': item}, inplace=True)
+        df_subset.rename(columns={'user':user, 'item':item}, inplace=True)
 
 
 def sort_headers(df_subset):
@@ -262,7 +261,7 @@ def add_dataset_columns(dataset_name, dataframe, columns, matrix_name):
     if dataset is None:
         return dataframe
 
-    result = list(map(lambda column: column.lower(), columns))
+    result = list(map(lambda column:column.lower(), columns))
     dataframe = add_data_columns(dataset, matrix_name, dataframe, result)
 
     show_info_columns(matrix_name, result, dataframe)
@@ -281,27 +280,33 @@ def filter_results(dataframe, dataset_name, matrix_name, filters):
     Returns:
         results after filtering
     """
+    # If no filters are provided, return the original dataframe
     if not filters:
         return dataframe
 
-    # Convert filters
-    settings = {}  # TODO refactor?
-    reformat_list(settings, 'subset', filters)  # TODO use reformat option instead?
-    # print('after reformat list', settings)
+    # Validate filter type
+    if not isinstance(filters, list):
+        raise ValueError(f"Expected filters to be a list, got {type(filters).__name__}: {filters}")
 
-    # Make a data subset config from the filters
+    # Convert filters into a structured format
+    settings = {}  # TODO refactor?
+    settings = reformat_list(settings, 'subset', filters)  # TODO use reformat option instead?
+
+    # Create a data subset config from the filters
     filter_pass_configs = []
+
     for filter_pass in settings['subset']:
-        print(filter_pass)
-        filter_configs = [FilterConfig(name=f['name'],
-                                       params=f['params'])
-                          for f in filter_pass['filter']]
+        filter_configs = [
+            FilterConfig(name=f['name'],
+            params=f['params'])
+            for f in filter_pass['filter']]
         filter_pass_configs.append(FilterPassConfig(filters=filter_configs))
 
     subset_config = DataSubsetConfig(dataset=dataset_name,
                                      matrix=matrix_name,
                                      filter_passes=filter_pass_configs)
 
+    # Create the filter factory.
     data_factory = GroupFactory('subset')
     data_factory.add_factory(create_filter_factory(recommender_system.data_registry))
 
@@ -321,16 +326,22 @@ def filter_results(dataframe, dataset_name, matrix_name, filters):
 
     # print('subset config', subset_config)
 
+    # Data pipeline setup and filtering
     temp_filter_dir = 'filtered'
-    os.mkdir(temp_filter_dir)
+    os.makedirs(temp_filter_dir, exist_ok=True)  # Create if not exists
 
-    data_pipeline = DataPipeline(data_factory, EventDispatcher())
-    dataframe = data_pipeline.filter_rows(temp_filter_dir,
-                                          dataframe,
-                                          subset_config)
-    # from fairreckitlib.data.filter.filter_passes import filter_from_filter_passes
-    # filter_from_filter_passes('filtered',dataframe,subset_config,)
+    try:
+        # Create and run the data pipeline for filtering
+        data_pipeline = DataPipeline(data_factory, EventDispatcher())
+        dataframe = data_pipeline.filter_rows(temp_filter_dir, dataframe, subset_config)
 
-    os.rmdir(temp_filter_dir)
+        # from fairreckitlib.data.filter.filter_passes import filter_from_filter_passes
+        # filter_from_filter_passes('filtered',dataframe,subset_config,)
+        # Debug: Log filtered dataframe
+        print(f"Filtered dataframe:\n{dataframe.head()}")
+    finally:
+        # Clean up temporary directory
+        if os.path.exists(temp_filter_dir):
+            os.rmdir(temp_filter_dir)  # Clean up the directory
 
     return dataframe

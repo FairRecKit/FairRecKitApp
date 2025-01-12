@@ -63,7 +63,7 @@ def delete():
         return BAD_REQUEST_RESPONSE
 
     delete_result(result_id, name)
-     # Remove the result from the experiment queue (if applicable)
+    # Remove the result from the experiment queue (if applicable)
     queue.queue = [
         result for result in queue.queue
         if result.queue_item.job['timestamp']['stamp'] != result_id
