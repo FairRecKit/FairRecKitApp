@@ -119,7 +119,7 @@ def last_fm_info(artist, track, mbid):
         url = LFM_API + '?method=track.getInfo&api_key=' + LFM_KEY + \
               '&artist=' + artist + \
               '&track=' + track + '&autocorrect=1&format=json'
-    res = requests.get(url)
+    res = requests.get(url, timeout=10)
     return json.loads(res.text)
 
 
@@ -133,7 +133,7 @@ def get_acousticbrainz_data(mbid):
         Dict: Dictionary with all High-Level audiofeatures
     """
     url = AB_API + 'high-level' + '?recording_ids=' + mbid
-    res = requests.get(url)
+    res = requests.get(url, timeout=10)
     return json.loads(res.text)
 
 
@@ -164,7 +164,7 @@ def get_background():
             playlist_length = playlist['total']
         offset += MAX_TRACK_LIMIT
     urls = [item['track']['album']['images'][1]['url'] for item in items]
-    images = [Image.open(BytesIO(requests.get(url).content)) for url in urls]
+    images = [Image.open(BytesIO(requests.get(url, timeout=10).content)) for url in urls]
     collage(images)
     return 'Background saved'
 
@@ -186,14 +186,12 @@ def collage(images, size=10):
     index = 0
     for i in range(0, width, image_width):
         for j in range(0, height, image_height):
-            # Convert images to NumPy arrays before pasting if necessary
-            image_array = np.array(images[index])
             background.paste(images[index], (i, j))
             index += 1
             # Handle contents size smaller than image count (flip).
             if index == len(images) - 1:
                 # Flip images using NumPy array
-                images = [Image.fromarray(np.flip(np.array(img), axis=0)) for img in images]
+                images = [Image.fromarray(np.flip(img, axis=0)) for img in images]
                 index = 0
     background.save('../client/public/background.png')
     return background
@@ -206,9 +204,9 @@ def first_100_album_collage():
     Returns:
         an PNG image with the collage
     """
-    # Get all items. "q=*" ensures that we search for all albums without any year or category filter.
+    # Get all items. "q=*" ensures that we search for all albums without any filter.
     albums = get_unique_n('q=*', 100, 'album', True)
-    images = [Image.open(BytesIO(requests.get(url).content)) for url in albums]
+    images = [Image.open(BytesIO(requests.get(url, timeout=10).content)) for url in albums]
 
     collage(images)
     return 'Background saved'
@@ -286,7 +284,7 @@ def request_spotify_data(url, full_url=False):
     get_spotify_token()
     headers = {'Authorization':tok.token_type + ' ' + tok.access_token,
                'Content-Type':'application/json'}
-    res = requests.get(full_url, headers=headers)
+    res = requests.get(full_url, headers=headers,timeout=10)
     # print('spotify request data', json.loads(res.text))
     return json.loads(res.text)
 
@@ -318,7 +316,7 @@ def get_spotify_token():
 
         try:
             res = requests.post(
-              'https://accounts.spotify.com/api/token', data=data, headers=headers)
+              'https://accounts.spotify.com/api/token', data=data, headers=headers, timeout=10)
             res.raise_for_status()  # Raise an error for bad status codes
             token_data = res.json()
 
@@ -327,7 +325,7 @@ def get_spotify_token():
             tok.expiration_time = time.time() + token_data.get('expires_in', 3600)
 
         except requests.RequestException as e:
-            raise RuntimeError(f"Failed to retrieve Spotify token: {e}")
+            raise RuntimeError(f'Failed to retrieve Spotify token: {e}')
 
     return {
         "access_token":tok.access_token,

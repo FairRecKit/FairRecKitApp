@@ -20,7 +20,7 @@ Utrecht University within the Software Project course.
 © Copyright Utrecht University (Department of Information and Computing Sciences)
 """
 import copy
-from flask import (Blueprint, request, jsonify)
+from flask import (Blueprint, request)
 import pandas as pd
 
 from project.blueprints.constants import BAD_REQUEST_RESPONSE
@@ -53,10 +53,9 @@ def set_recs():
 
     path = result_loader.get_overview(result_id, run_id)[
         pair_id]['ratings_path']
-    # TODO REMOVE WHEN LIB IS UP TO DATE: TEMPORARY FIX
     path = path.replace('\\', '/')
     # Declare current_recs as a dictionary in a dictionary
-    if not run_id in result_store.current_recs:
+    if run_id not in result_store.current_recs:
         result_store.current_recs[run_id] = {}
     # Load the correct ratings file
     result_store.current_recs[run_id][pair_id] = pd.read_csv(
@@ -128,7 +127,8 @@ def user_result():
     ascending = json_data.get("ascending", False)  # Default to False if not provided
 
     if not isinstance(ascending, bool):
-        raise ValueError(f"For argument 'ascending' expected type bool, received type {type(ascending).__name__}.")
+        raise ValueError(f"For argument 'ascending' expected type bool, received type "
+                         f"{type(ascending).__name__}.")
 
     # Load the current recs from the storage (without changing the original)
     recs = copy.deepcopy(result_store.current_recs[run_id][pair_id])

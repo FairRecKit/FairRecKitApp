@@ -82,7 +82,7 @@ def test_get_recs(client):
     settings = {
         'pairid': 0,
         'runid': 0,
-        'amount': amount, # Request 10 items,
+        'amount': amount,  # Request 10 items,
     }
 
     response = client.post(url, json=settings)
@@ -95,30 +95,30 @@ def test_get_recs(client):
     assert len(result) == amount
 
     # Check that ascending/descending influences the order of entries (when ascending is provided)
-    settings2 = {
+    settings = {
         'pairid': 0,
         'runid': 0,
         'amount': amount,
         'ascending': True,  # Ensuring ascending is explicitly set
         'dataset': 'LFM-2B-Sample',
     }
-    response2 = client.post(url, json=settings2)
+    response2 = client.post(url, json=settings)
     result2 = json.loads(response2.data)
     assert result[0] != result2[0]  # Ensure order changes when ascending is set
 
     # Test when ascending is not provided (should use default value)
-    settings3 = {
+    settings = {
         'pairid':0,
         'runid':0,
         'amount':amount,
         'dataset':'LFM-2B-Sample',
     }
-    response3 = client.post(url, json=settings3)
+    response3 = client.post(url, json=settings)
     result3 = json.loads(response3.data)
     assert result == result3  # Ensure results are the same when ascending is defaulted to True
 
     # Test when ascending is missing or invalid
-    settings4 = {
+    settings = {
         'pairid':0,
         'runid':0,
         'amount':amount,
@@ -126,11 +126,12 @@ def test_get_recs(client):
         # 'ascending' is intentionally omitted
     }
     # If ascending is not provided, the backend should use the default value (descending)
-    response4 = client.post(url, json=settings4)
+    response4 = client.post(url, json=settings)
 
     # Check if the response is a valid Flask response object
     # If backend uses default value for ascending, check for expected response
-    assert response4.status_code == 200  # Expect 200 if it's considered valid; 400 if there's an error
+    # Expect 200 if it's considered valid; 400 if there's an error
+    assert response4.status_code == 200
 
     result4 = json.loads(response4.data)
     # Check that result is a valid list of recommendations
@@ -141,7 +142,7 @@ def test_get_recs(client):
     assert result4 == result3  # Should be the same as when ascending is defaulted
 
     # Check that optional columns are added
-    settings5 = {
+    settings = {
         'pairid': 0,
         'runid': 0,
         'amount': amount,
@@ -149,7 +150,7 @@ def test_get_recs(client):
         'matrix': 'user-track-count',
         'optionalHeaders': ['user_age'],
     }
-    response5 = client.post(url, json=settings5)
+    response5 = client.post(url, json=settings)
     result5 = json.loads(response5.data)
 
     # Ensure the optional columns are added
@@ -188,5 +189,6 @@ def test_validate(client):
     queue.recommender_system = RecommenderSystem('datasets', MOCK_RESULTS_DIR)
     url = URL_PREFIX + '/validate'
     assert check_bad_request(client, url)
-    response = client.post(url, json={'filepath': '1654518468_Test938_perturbance', 'amount': 0, 'ID': 0})
+    response = client.post(url, json={'filepath': '1654518468_Test938_perturbance',
+                                      'amount': 0, 'ID': 0})
     assert response.data == b'Validated'

@@ -298,7 +298,7 @@ def filter_results(dataframe, dataset_name, matrix_name, filters):
     for filter_pass in settings['subset']:
         filter_configs = [
             FilterConfig(name=f['name'],
-            params=f['params'])
+                         params=f['params'])
             for f in filter_pass['filter']]
         filter_pass_configs.append(FilterPassConfig(filters=filter_configs))
 
