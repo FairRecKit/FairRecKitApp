@@ -54,9 +54,7 @@ def test_save_result():
     expected = TEST_EXPERIMENT
     # The current result gets updated
     assert result_store.current_result is expected
-
     delete_test_results()
-
 
 
 def test_no_path_json():
@@ -74,7 +72,6 @@ def test_update_results():
     assert new_results_length == old_results_length+1
 
     delete_test_results()
-
 
 
 def test_overview_created():

@@ -37,6 +37,7 @@ def test_results(client):
 
     delete_test_results()
 
+
 # Test editing a result POST route
 @patch('project.models.result_storage.RESULTS_OVERVIEW_PATH', TEST_RESULTS_PATH)
 @patch('project.models.result_storage.RESULTS_DIR', TEST_RESULTS_ROOT)
@@ -50,11 +51,11 @@ def test_edit(client):
 
     save_mock_result()
     # New metadata (that we expect)
-    metadata = {'name': 'bar', 'tags': 'bar', 'email': 'foo@bar.com'}
+    metadata = {'name':'bar', 'tags':'bar', 'email':'foo@bar.com'}
     # Use the metadata to create the edit settings
     edit_settings = \
-        {'id': TEST_ID, 'new_name': metadata['name'],
-         'new_tags': metadata['tags'], 'new_email': metadata['email']}
+        {'id':TEST_ID, 'new_name':metadata['name'],
+         'new_tags':metadata['tags'], 'new_email':metadata['email']}
 
     # POST edit request
     assert check_bad_request(client, url)
@@ -85,7 +86,7 @@ def test_delete(client):
     save_mock_result()
     index = 0
     #Create the settings required to remove an entry
-    delete_settings = { 'name': 'foo', 'id': index}
+    delete_settings = {'name':'foo', 'id':index}
 
     url = URL_PREFIX + '/delete'
 
@@ -94,8 +95,8 @@ def test_delete(client):
     response = client.post(url, json=delete_settings)
     edited_results = load_results_overview()
 
-     # Check success response
+    # Check success response
     assert response.data == b'Removed index'
 
-     # Check if the removed result is no longer in the results overview
+    # Check if the removed result is no longer in the results overview
     assert len(edited_results) == len(initial_results)

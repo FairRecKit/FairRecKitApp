@@ -127,7 +127,7 @@ class Experiment:
         """Run a new experiment (first run).
 
         Args:
-            experiment(QueueItem): the experiment to run
+            events(QueueItem): the experiment to run
 
         """
         # Create config files directory if it doesn't exist yet.
@@ -155,7 +155,7 @@ class Experiment:
         """Validate an experiment by running it multiple times, using the experiment file path.
 
         Args:
-            experiment(QueueItem): the experiment to validate
+            events(QueueItem): the experiment to validate
         """
         self.recommender_system.validate_experiment(result_dir=self.queue_item.job['file_path'],
                                                     num_runs=self.queue_item.job['amount'],

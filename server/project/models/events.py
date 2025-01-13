@@ -16,30 +16,30 @@ from fairreckitlib.experiment.experiment_event import \
     ON_END_EXPERIMENT_THREAD, ON_BEGIN_EXPERIMENT_THREAD, \
     ON_BEGIN_EXPERIMENT_PIPELINE
 from fairreckitlib.model.pipeline.model_event import \
-    ON_BEGIN_MODEL_PIPELINE, ON_BEGIN_TRAIN_MODEL,\
-    ON_BEGIN_LOAD_TRAIN_SET, ON_BEGIN_RECONSTRUCT_RATINGS,\
+    ON_BEGIN_MODEL_PIPELINE, ON_BEGIN_TRAIN_MODEL, \
+    ON_BEGIN_LOAD_TRAIN_SET, ON_BEGIN_RECONSTRUCT_RATINGS, \
     ON_BEGIN_TEST_MODEL
 from fairreckitlib.data.pipeline.data_event import \
     ON_BEGIN_DATA_PIPELINE, ON_BEGIN_FILTER_DATASET, \
     ON_BEGIN_SPLIT_DATASET, \
     ON_BEGIN_CONVERT_RATINGS, ON_BEGIN_SAVE_SETS
-from .experiment import Status, ProgressStatus, Progress, current_dt
+from project.models.experiment import Status, ProgressStatus, Progress, current_dt
 
 PROGRESS_DICT = {
-    ON_BEGIN_EXPERIMENT_PIPELINE: ProgressStatus.EXPERIMENT,
-    ON_BEGIN_DATA_PIPELINE: ProgressStatus.PROCESSING_DATA,
+    ON_BEGIN_EXPERIMENT_PIPELINE:ProgressStatus.EXPERIMENT,
+    ON_BEGIN_DATA_PIPELINE:ProgressStatus.PROCESSING_DATA,
     # ON_BEGIN_LOAD_DATASET: ProgressStatus.LOADING_DATA,
-    ON_BEGIN_FILTER_DATASET: ProgressStatus.FILTERING_DATA,
-    ON_BEGIN_CONVERT_RATINGS: ProgressStatus.CONVERTING_DATA,
-    ON_BEGIN_SPLIT_DATASET: ProgressStatus.SPLITTING_DATA,
-    ON_BEGIN_SAVE_SETS: ProgressStatus.SAVING_DATA,
-    ON_BEGIN_MODEL_PIPELINE: ProgressStatus.MODEL,
-    ON_BEGIN_RECONSTRUCT_RATINGS: ProgressStatus.MODEL_RECONSTRUCTING,
-    ON_BEGIN_LOAD_TRAIN_SET: ProgressStatus.MODEL_LOAD,
-    ON_BEGIN_TRAIN_MODEL: ProgressStatus.MODEL_TRAINING,
-    ON_BEGIN_TEST_MODEL: ProgressStatus.MODEL_TESTING,
-    ON_BEGIN_EVAL_PIPELINE: ProgressStatus.EVALUATING,
-    ON_BEGIN_FILTER_RECS: ProgressStatus.EVAL_FILTERING
+    ON_BEGIN_FILTER_DATASET:ProgressStatus.FILTERING_DATA,
+    ON_BEGIN_CONVERT_RATINGS:ProgressStatus.CONVERTING_DATA,
+    ON_BEGIN_SPLIT_DATASET:ProgressStatus.SPLITTING_DATA,
+    ON_BEGIN_SAVE_SETS:ProgressStatus.SAVING_DATA,
+    ON_BEGIN_MODEL_PIPELINE:ProgressStatus.MODEL,
+    ON_BEGIN_RECONSTRUCT_RATINGS:ProgressStatus.MODEL_RECONSTRUCTING,
+    ON_BEGIN_LOAD_TRAIN_SET:ProgressStatus.MODEL_LOAD,
+    ON_BEGIN_TRAIN_MODEL:ProgressStatus.MODEL_TRAINING,
+    ON_BEGIN_TEST_MODEL:ProgressStatus.MODEL_TESTING,
+    ON_BEGIN_EVAL_PIPELINE:ProgressStatus.EVALUATING,
+    ON_BEGIN_FILTER_RECS:ProgressStatus.EVAL_FILTERING
 }
 
 STATUS_ORDER = [
@@ -102,7 +102,7 @@ class EventHandler:
             # ON_END_EXPERIMENT_PIPELINE,
             ON_END_EXPERIMENT_THREAD,
         ]
-        self.events = {event_id: self.handle_event for event_id in event_ids}
+        self.events = {event_id:self.handle_event for event_id in event_ids}
 
     def handle_event(self, event_listener, event_args, **kwargs):
         """Handle the event based on its ID.
@@ -111,7 +111,7 @@ class EventHandler:
             event_listener(obj): the event_listener to be used
             event_args(dict): the event arguments
         """
-        if not event_listener: # TODO this is only done so pylint stops yappin'
+        if not event_listener:  # this is only done so pylint stops yappin'
             print('No event listener')
 
         if event_args.event_id == ON_BEGIN_EXPERIMENT_THREAD:
@@ -151,8 +151,7 @@ class EventHandler:
         self.max_progress = args.num_runs * len(STATUS_ORDER)
 
         # Add experiment execution data to settings
-        self.experiment.job.setdefault('experiments', []).append({'started': current_dt()})
-
+        self.experiment.job.setdefault('experiments', []).append({'started':current_dt()})
 
     def on_end_experiment_thread(self, args, kwargs):
         """Change progress status to finished and experiment status to "done".

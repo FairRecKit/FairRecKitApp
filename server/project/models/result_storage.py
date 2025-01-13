@@ -83,11 +83,11 @@ class ResultStorage:
             for (api, approaches) in settings['models'].items():
                 for (approach_index, approach) in enumerate(approaches):
                     # Add approach, with index as identifier in the name
-                    recommendation = {'approach': api + '_' + approach['name'] + '_'
-                                                  + str(approach_index),
-                                      'evals': []}
+                    recommendation = {'approach':api + '_' +
+                                                 approach['name'] + '_' +
+                                                 str(approach_index), 'evals':[]}
                     recs.append(recommendation)
-            result.append({'dataset': dataset, 'recs': recs})
+            result.append({'dataset':dataset, 'recs':recs})
         return result
 
 
@@ -188,7 +188,7 @@ def edit_result(result_id, new_name, new_tags, new_email):
 
     file_results[index] = to_edit_result
 
-    write_results_overview({'all_results': file_results})
+    write_results_overview({'all_results':file_results})
 
     # Update the folder name to match the new name
     new_path = makepath(result_id, to_edit_result)
@@ -241,7 +241,7 @@ def create_results_overview():
             or os.stat(RESULTS_OVERVIEW_PATH).st_size == 0:
         # Open the file in write mode.
         with open(RESULTS_OVERVIEW_PATH, 'w', encoding='utf-8') as file:
-            json.dump({'all_results': []}, file, indent=4)
+            json.dump({'all_results':[]}, file, indent=4)
 
 
 def parse_tags(tags_string):

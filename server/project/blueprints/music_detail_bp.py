@@ -18,11 +18,13 @@ Utrecht University within the Software Project course.
 """
 import base64
 import json
+import os
 import time
 from io import BytesIO
 import requests
 import numpy as np
 from PIL import Image
+from dotenv import load_dotenv
 
 from flask import Blueprint, request
 
@@ -57,8 +59,8 @@ def song_info():
         lastfm_track = lastfm_data['track']
         if not mbid and lastfm_track and 'mbid' in lastfm_track:
             mbid = lastfm_track['mbid']
-    return {'AcousticBrainz': get_acousticbrainz_data(mbid) if mbid else None,
-            'LastFM': lastfm_data}
+    return {'AcousticBrainz':get_acousticbrainz_data(mbid) if mbid else None,
+            'LastFM':lastfm_data}
 
 
 @blueprint.route('/spotify-info', methods=['POST'])
@@ -117,7 +119,7 @@ def last_fm_info(artist, track, mbid):
         url = LFM_API + '?method=track.getInfo&api_key=' + LFM_KEY + \
               '&artist=' + artist + \
               '&track=' + track + '&autocorrect=1&format=json'
-    res = requests.get(url)
+    res = requests.get(url, timeout=10)
     return json.loads(res.text)
 
 
@@ -131,7 +133,7 @@ def get_acousticbrainz_data(mbid):
         Dict: Dictionary with all High-Level audiofeatures
     """
     url = AB_API + 'high-level' + '?recording_ids=' + mbid
-    res = requests.get(url)
+    res = requests.get(url, timeout=10)
     return json.loads(res.text)
 
 
@@ -162,7 +164,7 @@ def get_background():
             playlist_length = playlist['total']
         offset += MAX_TRACK_LIMIT
     urls = [item['track']['album']['images'][1]['url'] for item in items]
-    images = [Image.open(BytesIO(requests.get(url).content)) for url in urls]
+    images = [Image.open(BytesIO(requests.get(url, timeout=10).content)) for url in urls]
     collage(images)
     return 'Background saved'
 
@@ -171,7 +173,8 @@ def collage(images, size=10):
     """Create collage from images.
 
     Args:
-        urls: the image urls
+        images: the image urls
+        size: matrix size (size x size matrix of images)
 
     Returns:
         the collage in PNG format
@@ -187,7 +190,8 @@ def collage(images, size=10):
             index += 1
             # Handle contents size smaller than image count (flip).
             if index == len(images) - 1:
-                np.flip(images)
+                # Flip images using NumPy array
+                images = [Image.fromarray(np.flip(img, axis=0)) for img in images]
                 index = 0
     background.save('../client/public/background.png')
     return background
@@ -200,10 +204,9 @@ def first_100_album_collage():
     Returns:
         an PNG image with the collage
     """
-    # Get all items by setting year to maximal span.
-    # Going negative in the year causes a non-year query.
-    albums = get_unique_n('q=year:0-10000', 100, 'album', True)
-    images = [Image.open(BytesIO(requests.get(url).content)) for url in albums]
+    # Get all items. "q=*" ensures that we search for all albums without any filter.
+    albums = get_unique_n('q=*', 100, 'album', True)
+    images = [Image.open(BytesIO(requests.get(url, timeout=10).content)) for url in albums]
 
     collage(images)
     return 'Background saved'
@@ -223,26 +226,47 @@ def get_unique_n(query, amount, category, image):
     """
     # Amount of items returned are a multiple of 10.
     limit = 10
-    url = SPOTIFY_API + 'search?' + query + \
-          '&type=' + category + '&limit=' + str(limit)
+    url = SPOTIFY_API + 'search?' + query + '&type=' + category + '&limit=' + str(limit)
 
-    items = []
+    items = set()  # Use a set to enforce uniqueness
     # Get next until we have n items.
     while len(items) < amount:
         query = request_spotify_data(url, full_url=True)
-        print(query)
+
+        # Validate the query response
+        if not query or category + 's' not in query:
+            print("Invalid response or missing category data.")
+            break
+
         category_data = query[category + 's']
-        if image:
-            items = list(set(items + [item['images'][1]['url']
-                                      for item in category_data['items']]))
-        else:
-            items += list(set(items + [item['id']
-                                       for item in category_data['items']]))
-        if len(items) < limit:
-            break  # Stop if there are less items left than the limit
+        if 'items' not in category_data or not category_data['items']:
+            print("No items found in category data.")
+            break
+
+        # Add image URLs or IDs
+        for item in category_data['items']:
+            if image:
+                try:
+                    # Safely access the second image if it exists
+                    if 'images' in item and len(item['images']) > 1:
+                        items.add(item['images'][1]['url'])
+                except Exception as e:
+                    print(f"Error processing image data: {e}")
+
+            else:
+                try:
+                    items.add(item['id'])
+                except KeyError:
+                    print(f"Error processing item ID for {item}.")
+
+        # Break if no more pages are available
+        if not category_data.get('next'):
+            break
+
         url = category_data['next']
 
-    return items
+    # Return only the requested number of unique items
+    return list(items)[:amount]
 
 
 def request_spotify_data(url, full_url=False):
@@ -258,33 +282,56 @@ def request_spotify_data(url, full_url=False):
     full_url = url if full_url else SPOTIFY_API + url
     # print('spotify request url', full_url)
     get_spotify_token()
-    headers = {'Authorization': tok.token_type + ' ' + tok.access_token,
-               'Content-Type': 'application/json'}
-    res = requests.get(full_url, headers=headers)
+    headers = {'Authorization':tok.token_type + ' ' + tok.access_token,
+               'Content-Type':'application/json'}
+    res = requests.get(full_url, headers=headers,timeout=10)
     # print('spotify request data', json.loads(res.text))
     return json.loads(res.text)
 
 
 def get_spotify_token():
-    """Route: Get Spotify auth TOKEN using id and secret.
+    """Route: Get Spotify auth TOKEN using client credentials (id and secret).
 
-    Returns: the spotify TOKEN
+    Returns:
+        dict: A dictionary containing the access token and token type.
     """
     if (not tok.access_token) or tok.expiration_time - 100 > time.time():
-        spotify_id = '7e49545dfb45473cbe595d8bb1e22071'
-        spotify_secret = 'd5a9e8febef2468b94a5edabe2c5ddeb'
-        message = (spotify_id + ':' + spotify_secret).encode()
-        encoded = base64.b64encode(message)
-        headers = {'Authorization': 'Basic ' + encoded.decode(),
-                   'Content-Type': 'application/x-www-form-urlencoded'}
-        data = 'grant_type=client_credentials'
-        res = requests.post(
-            'https://accounts.spotify.com/api/token', data=data, headers=headers)
-        token_data = json.loads(res.text)
-        tok.expiration_time = time.time() + token_data['expires_in']
-        tok.token_type = token_data['token_type']
-        tok.access_token = token_data['access_token']
-    return token_to_dict(tok)
+        load_dotenv()  # Load variables from .env file
+        spotify_id = os.getenv('SPOTIFY_CLIENT_ID')
+        spotify_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+
+        # Ensure credentials are provided
+        if not spotify_id or not spotify_secret:
+            raise ValueError("Spotify client ID and secret must be set.")
+
+        # Encode credentials for Basic Auth
+        message = f"{spotify_id}:{spotify_secret}".encode('utf-8')
+        encoded = base64.b64encode(message).decode('utf-8')
+
+        headers = {
+            'Authorization':f'Basic {encoded}',
+            'Content-Type':'application/x-www-form-urlencoded'
+        }
+        data = {'grant_type': 'client_credentials'}
+
+        try:
+            res = requests.post(
+              'https://accounts.spotify.com/api/token', data=data, headers=headers, timeout=10)
+            res.raise_for_status()  # Raise an error for bad status codes
+            token_data = res.json()
+
+            tok.access_token = token_data['access_token']
+            tok.token_type = token_data['token_type']
+            tok.expiration_time = time.time() + token_data.get('expires_in', 3600)
+
+        except requests.RequestException as e:
+            raise RuntimeError(f'Failed to retrieve Spotify token: {e}') from e
+
+    return {
+        "access_token":tok.access_token,
+        "token_type":tok.token_type,
+        "expires_in":int(tok.expiration_time - time.time())
+    }
 
 
 def token_to_dict(token):
@@ -296,6 +343,6 @@ def token_to_dict(token):
     Returns:
         the token in dictionary form
     """
-    return {'access_token': token.access_token,
-            'token_type': token.token_type,
-            'expiration_time': token.expiration_time}
+    return {'access_token':token.access_token,
+            'token_type':token.token_type,
+            'expiration_time':token.expiration_time}
