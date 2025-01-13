@@ -16,8 +16,8 @@ import logging
 from flask import Flask
 from flask_cors import CORS
 
-from project.models.result_storage import create_results_overview
-from project.models.mail import MailSender
+from .models.result_storage import create_results_overview
+from .models.mail import MailSender
 from .models import make_mail
 from .blueprints import experiment_bp, music_detail_bp, result_bp, results_bp
 
@@ -30,7 +30,7 @@ def create_app():
     app.config['TESTING'] = False
 
     # Mail stuff
-    app.config['MAIL_SERVER']='smtp.gmail.com'
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 465
     app.config['MAIL_USERNAME'] = 'fairreckit@gmail.com'
     app.config['MAIL_PASSWORD'] = 'shxvajwlrlszpnaa'
@@ -45,15 +45,20 @@ def create_app():
     logger.addHandler(logging.StreamHandler(sys.stdout))
     logger.setLevel(logging.DEBUG)
 
+    # Route: root.
+    @app.route('/')
+    def home():
+        return "Welcome to the Flask API!"
+
     # Route: Main.
     @app.route('/api/', methods=['GET'])
     def main():
-        return {"msg": "Server online."}
+        return {"msg":"Server online."}
 
     # Route: Do a sanity check.
     @app.route('/api/greeting', methods=['GET'])
     def greet():
-        return {"greeting": "Greetings from the backend :)"}
+        return {"greeting":"Greetings from the backend :)"}
 
     register_blueprints(app)
     create_results_overview()

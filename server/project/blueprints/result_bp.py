@@ -53,15 +53,14 @@ def set_recs():
 
     path = result_loader.get_overview(result_id, run_id)[
         pair_id]['ratings_path']
-    # TODO REMOVE WHEN LIB IS UP TO DATE: TEMPORARY FIX
     path = path.replace('\\', '/')
     # Declare current_recs as a dictionary in a dictionary
-    if not run_id in result_store.current_recs:
+    if run_id not in result_store.current_recs:
         result_store.current_recs[run_id] = {}
     # Load the correct ratings file
     result_store.current_recs[run_id][pair_id] = pd.read_csv(
         path, sep='\t', header=0)
-    return {'status': 'success'}
+    return {'status':'success'}
 
 
 @blueprint.route('/filters', methods=['POST'])
@@ -77,7 +76,7 @@ def available_filters():
     filters = recommender_system.get_available_data_filters()[dataset_name][matrix_name]
     formatted_filters = make_filter_option(filters)
     # print('== FILTERS == ', dataset_name, matrix_name, ': ', formatted_filters['options'])
-    return {'filters': formatted_filters['options']}
+    return {'filters':formatted_filters['options']}
 
 
 @blueprint.route('/result-by-id', methods=['POST', 'GET'])
@@ -95,12 +94,12 @@ def set_result():
 
         result_by_id(int(result_id), result_store)
         if result_store.current_result:
-            response = {'status': 'success'}
+            response = {'status':'success'}
         else:
-            response = {'status': 'result not found'}
+            response = {'status':'result not found'}
 
     else:  # GET request
-        response = {'result': result_store.current_result}
+        response = {'result':result_store.current_result}
 
     return response
 
@@ -124,9 +123,15 @@ def user_result():
     matrix_name = json_data.get('matrix', '')
     dataset_name = json_data.get('dataset', '')
 
+    # Set default value for ascending if it's missing
+    ascending = json_data.get("ascending", False)  # Default to False if not provided
+
+    if not isinstance(ascending, bool):
+        raise ValueError(f"For argument 'ascending' expected type bool, received type "
+                         f"{type(ascending).__name__}.")
+
     # Load the current recs from the storage (without changing the original)
     recs = copy.deepcopy(result_store.current_recs[run_id][pair_id])
-
     recs = filter_results(recs, dataset_name, matrix_name, json_data.get("filters", []))
 
     # Add optional columns to the dataframe (if any)
@@ -141,20 +146,23 @@ def user_result():
     sort_index = json_data.get("sortindex", 0)
     if len(recs.columns) <= sort_index:
         sort_index = 0
-    # Sort dataframe based on index and ascending or not
-    df_sorted = recs.sort_values(
-        by=recs.columns[sort_index], ascending=json_data.get("ascending"))
 
-    chunk_size = int(json_data.get("amount", 20))
-    df_subset = get_chunk(int(json_data.get("start", 0)),
+    # Sort dataframe based on index and ascending or not)
+    df_sorted = recs.sort_values(
+        by=recs.columns[sort_index],
+        ascending=ascending  # Use the ascending value passed in or defaulted
+    )
+
+    # Limit the number of rows based on the 'amount' parameter
+    chunk_size = int(json_data.get("amount", 20))  # Default to 20 if not provided
+    start_index = int(json_data.get("start_index", 0))  # Default to 0 if not provided
+    df_subset = get_chunk(start_index,
                           chunk_size,
-                          df_sorted)
+                          df_sorted)  # Apply slicing
 
     rename_headers(dataset_name, matrix_name, df_subset)
-
     sort_headers(df_subset)
-
-    print(df_subset.head())
+    #print(df_subset.head())
 
     return df_subset.to_json(orient='records')
 

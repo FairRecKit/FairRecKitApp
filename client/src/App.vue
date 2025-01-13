@@ -142,7 +142,7 @@ function callToast() {
       <div class="container text-center text-white py-2">
         <!-- Github -->
         <a
-          href="https://github.com/TheMinefreak23/fair-rec-kit-app"
+          href="https://github.com/FairRecKit/"
           target="_blank"
           class="btn btn-outline-light btn-floating m-1 mx-3 rounded-pill border-2 p-0"
           role="button"
@@ -162,7 +162,7 @@ function callToast() {
         </a>
         <!-- Email -->
         <a
-          href="mailto:FairRecKit@hotmail.com"
+          href="mailto:FairRecKit@outlook.com"
           target="_blank"
           class="btn btn-outline-light btn-floating m-1 mx-3 rounded-pill border-2 p-0"
           role="button"

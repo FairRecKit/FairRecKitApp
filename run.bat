@@ -1,6 +1,5 @@
 cd client
-start npm run dev 
+start run-client.bat
 cd ..
 cd server
-start run.bat
-
+start run-server.bat

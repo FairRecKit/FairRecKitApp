@@ -38,7 +38,7 @@ def test_set_recs(client):
     settings = {'id': 0, 'runid': 0, 'pairid': 0}
     check_bad_request(client, url)
     response = client.post(url, json=settings)
-    # Check succes response
+    # Check success response
     assert json.loads(response.data)['status'] == 'success'
     # Check that something has been stored in current current_recs at the given runid
     assert result_store.current_recs[0]
@@ -82,27 +82,64 @@ def test_get_recs(client):
     settings = {
         'pairid': 0,
         'runid': 0,
-        'amount': amount
+        'amount': amount,  # Request 10 items,
     }
+
     response = client.post(url, json=settings)
     result = json.loads(response.data)
 
     # Check that the post is loaded in correctly
     assert result
+
     # Check that the amount of loaded entries is correct
     assert len(result) == amount
 
-    # Check that ascending/descending influences the order of entries
+    # Check that ascending/descending influences the order of entries (when ascending is provided)
     settings = {
         'pairid': 0,
         'runid': 0,
         'amount': amount,
-        'ascending': True,
-        'dataset': 'LFM-2B-Sample'
+        'ascending': True,  # Ensuring ascending is explicitly set
+        'dataset': 'LFM-2B-Sample',
     }
-    response = client.post(url, json=settings)
-    result2 = json.loads(response.data)
-    assert result[0] != result2[0]
+    response2 = client.post(url, json=settings)
+    result2 = json.loads(response2.data)
+    assert result[0] != result2[0]  # Ensure order changes when ascending is set
+
+    # Test when ascending is not provided (should use default value)
+    settings = {
+        'pairid':0,
+        'runid':0,
+        'amount':amount,
+        'dataset':'LFM-2B-Sample',
+    }
+    response3 = client.post(url, json=settings)
+    result3 = json.loads(response3.data)
+    assert result == result3  # Ensure results are the same when ascending is defaulted to True
+
+    # Test when ascending is missing or invalid
+    settings = {
+        'pairid':0,
+        'runid':0,
+        'amount':amount,
+        'dataset':'LFM-2B-Sample',
+        # 'ascending' is intentionally omitted
+    }
+    # If ascending is not provided, the backend should use the default value (descending)
+    response4 = client.post(url, json=settings)
+
+    # Check if the response is a valid Flask response object
+    # If backend uses default value for ascending, check for expected response
+    # Expect 200 if it's considered valid; 400 if there's an error
+    assert response4.status_code == 200
+
+    result4 = json.loads(response4.data)
+    # Check that result is a valid list of recommendations
+    assert isinstance(result4, list)
+    # You can also further check the content of the list
+    assert len(result4) > 0  # Ensure it returns some results
+
+    assert result4 == result3  # Should be the same as when ascending is defaulted
 
     # Check that optional columns are added
     settings = {
@@ -111,11 +148,13 @@ def test_get_recs(client):
         'amount': amount,
         'dataset': 'LFM-2B-Sample',
         'matrix': 'user-track-count',
-        'optionalHeaders': ['user_age']
+        'optionalHeaders': ['user_age'],
     }
-    response = client.post(url, json=settings)
-    result3 = json.loads(response.data)
-    assert len(result[0]) < len(result3[0])
+    response5 = client.post(url, json=settings)
+    result5 = json.loads(response5.data)
+
+    # Ensure the optional columns are added
+    assert len(result[0]) < len(result5[0])
 
 
 def test_headers(client):
@@ -150,6 +189,6 @@ def test_validate(client):
     queue.recommender_system = RecommenderSystem('datasets', MOCK_RESULTS_DIR)
     url = URL_PREFIX + '/validate'
     assert check_bad_request(client, url)
-    response = client.post(url, json={'filepath': '1654518468_Test938_perturbance', \
-        'amount': 0, 'ID': 0})
+    response = client.post(url, json={'filepath': '1654518468_Test938_perturbance',
+                                      'amount': 0, 'ID': 0})
     assert response.data == b'Validated'

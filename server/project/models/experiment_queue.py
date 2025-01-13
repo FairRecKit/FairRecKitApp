@@ -131,6 +131,7 @@ class ExperimentQueue:
             overview_index(int): the index in the results overview
             file_path(str): the path to the existing experiment result
             amount(int): the amount of runs for validation
+            result: validation result
 
         """
         result['overview_index'] = overview_index
