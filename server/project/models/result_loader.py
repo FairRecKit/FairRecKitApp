@@ -24,9 +24,9 @@ from fairreckitlib.data.filter.filter_factory import create_filter_factory
 from fairreckitlib.core.events.event_dispatcher import EventDispatcher
 
 from project.models.options_formatter import reformat_list
-from . import recommender_system
-from .constants import RESULTS_DIR
-from .result_storage import load_results_overview, load_json
+from project.models import recommender_system
+from project.models.constants import RESULTS_DIR
+from project.models.result_storage import load_results_overview, load_json
 
 ADDITIONAL_COLUMNS = {
     'user-track-count':{'spotify':['audio_snippet']}
@@ -55,12 +55,6 @@ def result_by_id(result_id, result_storage):
         for pair_id, pair_data in enumerate(run_overview['overview']):
             evaluation_path_full = os.getcwd() + "/" + \
                                    pair_data['evaluation_path']
-
-            # TODO REMOVE WHEN LIB IS UP TO DATE: TEMPORARY FIX
-            # evaluation_path_full = evaluation_path_full.replace('\\', '/')
-
-            # ratings_settings_path_full = os.getcwd() + "/" + \
-            #    pair_data['ratings_settings_path']
 
             if os.path.exists(evaluation_path_full):
                 evaluation_data = load_json(evaluation_path_full)
@@ -255,7 +249,7 @@ def add_dataset_columns(dataset_name, dataframe, columns, matrix_name):
         matrix_name: the name of the matrix belonging to the dataframe
 
     Returns:
-        The updated dataframe
+        dataframe: The updated dataframe
     """
     dataset = recommender_system.data_registry.get_set(dataset_name)
     if dataset is None:
@@ -278,7 +272,7 @@ def filter_results(dataframe, dataset_name, matrix_name, filters):
         filters(list): filter settings
 
     Returns:
-        results after filtering
+        dataframe: results after filtering
     """
     # If no filters are provided, return the original dataframe
     if not filters:
@@ -290,7 +284,7 @@ def filter_results(dataframe, dataset_name, matrix_name, filters):
 
     # Convert filters into a structured format
     settings = {}  # TODO refactor?
-    settings = reformat_list(settings, 'subset', filters)  # TODO use reformat option instead?
+    reformat_list(settings, 'subset', filters)  # TODO use reformat option instead?
 
     # Create a data subset config from the filters
     filter_pass_configs = []

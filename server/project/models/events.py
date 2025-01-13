@@ -23,7 +23,7 @@ from fairreckitlib.data.pipeline.data_event import \
     ON_BEGIN_DATA_PIPELINE, ON_BEGIN_FILTER_DATASET, \
     ON_BEGIN_SPLIT_DATASET, \
     ON_BEGIN_CONVERT_RATINGS, ON_BEGIN_SAVE_SETS
-from .experiment import Status, ProgressStatus, Progress, current_dt
+from project.models.experiment import Status, ProgressStatus, Progress, current_dt
 
 PROGRESS_DICT = {
     ON_BEGIN_EXPERIMENT_PIPELINE:ProgressStatus.EXPERIMENT,
@@ -111,7 +111,7 @@ class EventHandler:
             event_listener(obj): the event_listener to be used
             event_args(dict): the event arguments
         """
-        if not event_listener:  # TODO this is only done so pylint stops yappin'
+        if not event_listener:  # this is only done so pylint stops yappin'
             print('No event listener')
 
         if event_args.event_id == ON_BEGIN_EXPERIMENT_THREAD:

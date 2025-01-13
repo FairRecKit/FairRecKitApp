@@ -325,7 +325,7 @@ def get_spotify_token():
             tok.expiration_time = time.time() + token_data.get('expires_in', 3600)
 
         except requests.RequestException as e:
-            raise RuntimeError(f'Failed to retrieve Spotify token: {e}')
+            raise RuntimeError(f'Failed to retrieve Spotify token: {e}') from e
 
     return {
         "access_token":tok.access_token,
