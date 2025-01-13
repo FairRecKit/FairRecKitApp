@@ -83,7 +83,8 @@ class ResultStorage:
             for (api, approaches) in settings['models'].items():
                 for (approach_index, approach) in enumerate(approaches):
                     # Add approach, with index as identifier in the name
-                    recommendation = {'approach':api + '_' + approach['name'] + '_' +
+                    recommendation = {'approach':api + '_' +
+                                                 approach['name'] + '_' +
                                                  str(approach_index), 'evals':[]}
                     recs.append(recommendation)
             result.append({'dataset':dataset, 'recs':recs})

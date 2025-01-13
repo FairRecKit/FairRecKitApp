@@ -11,8 +11,4 @@ PyYAML>=6.0
 requests>=2.27.1
 sewar>=0.4.5
 imageio>=2.19.3
-<<<<<<< HEAD
 python-dotenv>=1.0.0
-=======
-python-dotenv>=1.0.0
->>>>>>> 5f57774138e9a19432dedd4271c5bca596a87d17
