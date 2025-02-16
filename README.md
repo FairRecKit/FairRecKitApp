@@ -32,7 +32,7 @@ If you use FairRecKit in research, please cite:
 
 ## Running the client & server
 
-- Install Node.js first and run `npm install`
+- Install Node.js first and run `npm install` in the client directory to install the needed packages.
 - On **Windows**: Either click the run.bat file in the app directory, or run `run` in cmd.
 - On **Unix** systems: Run the run.sh file (located in the app directory) in the terminal.
 
@@ -46,7 +46,7 @@ You can also see any lint errors in the console.
 
 ## Running the client separately
 
-- Use `npm i` first to install the needed packages.
+- Run `npm i` in the client directory to install the needed packages.
 - On **Windows**: Either click the run-client.bat file in the client directory, or run `run-client` in cmd.
 - On **Unix** systems: Run the run-client.sh file (located in the client directory) in the terminal.
 - Alternatively: Run `npm run dev` in the terminal.
@@ -65,7 +65,7 @@ In all cases, you might want to add a configuration (pointing to the .bat or .sh
 
 ## Testing the client
 
-- On **Windows**: Execute the run-client-test.bat file in the client folder.
+- On **Windows**: Execute the run-client-test.bat file in the client directory.
 - On **Unix** systems: Run the run-client-test.sh file (located in the client directory) in the terminal.
 - Alternatively: Run `npm run test` in the terminal.
 

@@ -137,7 +137,7 @@ function callToast() {
     <!-- Footer -->
     <div class="bg-dark py-1 mt-auto">
       <p class="text-white my-0 mt-2 pb-2 text-center">
-        &copy; Utrecht University (ICS).
+        &copy; FairRecKit.
       </p>
       <div class="container text-center text-white py-2">
         <!-- Github -->
