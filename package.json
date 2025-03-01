@@ -4,13 +4,12 @@
   "scripts": {
     "cypress:open": "cypress open"
   },
-  "devDependencies": {
-    "@testing-library/cypress": "^10.0.2",
-    "@vitejs/plugin-vue": "^2.2.2"
-  },
   "description": "[![Pylint](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/pylint.yml/badge.svg)](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/pylint.yml) [![PEP257](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/pydoctest.yml/badge.svg)](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/pydoctest.yml) [![Server Pytest](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/pytest.yml/badge.svg)](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/pytest.yml) [![Client Vitest](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/vitest.yml/badge.svg)](https://github.com/FairRecKit/FairRecKitApp/actions/workflows/vitest.yml) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/FairRecKit/FairRecKitApp?label=Release)",
   "main": "cypress.config.js",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "22": "^0.0.0"
+  }
 }
