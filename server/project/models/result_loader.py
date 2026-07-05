@@ -12,6 +12,7 @@ Utrecht University within the Software Project course.
 © Copyright Utrecht University (Department of Information and Computing Sciences)
 """
 import os
+import shutil
 from fairreckitlib.data.set.dataset import add_dataset_columns as add_data_columns
 
 from fairreckitlib.data.filter.filter_config import FilterConfig
@@ -188,7 +189,9 @@ def rename_headers(dataset_name, matrix_name, df_subset):
     if dataset is not None and not dataset.get_matrix_config(matrix_name) is None:
         item = dataset.get_matrix_config(matrix_name).item.key
         user = dataset.get_matrix_config(matrix_name).user.key
-        df_subset.rename(columns={'user':user, 'item':item}, inplace=True)
+        df_subset = df_subset.copy()
+        df_subset = df_subset.rename(columns={'user':user, 'item':item})
+    return df_subset
 
 
 def sort_headers(df_subset):
@@ -336,6 +339,6 @@ def filter_results(dataframe, dataset_name, matrix_name, filters):
     finally:
         # Clean up temporary directory
         if os.path.exists(temp_filter_dir):
-            os.rmdir(temp_filter_dir)  # Clean up the directory
+            shutil.rmtree(temp_filter_dir)  # Clean up the directory (recursively)
 
     return dataframe
