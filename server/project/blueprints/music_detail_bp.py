@@ -120,7 +120,10 @@ def last_fm_info(artist, track, mbid):
               '&artist=' + artist + \
               '&track=' + track + '&autocorrect=1&format=json'
     res = requests.get(url, timeout=10)
-    return json.loads(res.text)
+    try:
+        return res.json()
+    except ValueError:
+        raise RuntimeError(f"Spotify returned invalid JSON: {res.text}")
 
 
 def get_acousticbrainz_data(mbid):
@@ -286,7 +289,17 @@ def request_spotify_data(url, full_url=False):
                'Content-Type':'application/json'}
     res = requests.get(full_url, headers=headers,timeout=10)
     # print('spotify request data', json.loads(res.text))
-    return json.loads(res.text)
+    # critical fix: handle HTTP errors first
+    if not res.ok:
+        raise RuntimeError(
+            f"Spotify request failed ({res.status_code}): {res.text}"
+        )
+
+    # critical fix: safe JSON parsing
+    try:
+        return res.json()
+    except ValueError:
+        raise RuntimeError(f"Invalid JSON from Spotify: {res.text}")
 
 
 def get_spotify_token():
