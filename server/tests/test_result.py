@@ -179,6 +179,8 @@ def test_headers(client):
     assert result2
 
 
+@patch('project.models.result_storage.RESULTS_OVERVIEW_PATH', MOCK_RESULTS_DIR + 'results_overview.json')
+@patch('project.models.result_storage.RESULTS_DIR', MOCK_RESULTS_DIR)
 @patch('project.models.recommender_system', RecommenderSystem('datasets', MOCK_RESULTS_DIR))
 def test_validate(client):
     """Test if the server-side validation component is functional.

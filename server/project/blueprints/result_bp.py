@@ -207,6 +207,8 @@ def validate():
 
     overview = load_results_overview()
     overview_index = id_to_index(overview, result_id)
+    if overview_index == -1:
+        return BAD_REQUEST_RESPONSE
     result = overview['all_results'][overview_index]
     amount = int(json_data.get('amount', 1))
     queue.add_validation(overview_index, file_path, amount, result)
